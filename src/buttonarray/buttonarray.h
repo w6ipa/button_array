@@ -9,9 +9,10 @@
     #define max_value 4095
 #else
     #define max_value 1023
-    #define r1_value 10
-    #define r2_value 1
 #endif
+
+#define r1_value 10
+#define r2_value 1
 
 class Button {
     private:
@@ -20,8 +21,8 @@ class Button {
         uint8_t step_;
     public:
         Button(){};
-        init_limits(uint8_t step);
-        bool pressed(int32_t analog_reading);
+        InitLimits(uint8_t step);
+        bool Pressed(int32_t analog_reading);
         int32_t high_limit();
         int32_t low_limit();
 };
@@ -32,16 +33,16 @@ class ButtonArray {
         uint8_t pin_;
         uint8_t nb_buttons_;
         int32_t high_limit_;
-        int8_t read_buttons();
+        int8_t ReadButtons();
 
     public:
         uint32_t last_pressed_ms;
         ButtonArray(uint8_t pin, uint8_t nb): pin_(pin), nb_buttons_(nb){};
-        add_all();
-        add(uint8_t step, uint8_t index);
+        AddAll();
+        Add(uint8_t step, uint8_t index);
         int32_t high_limit();
-        int8_t pressed();
-        bool held(uint8_t index, uint32_t until );
+        int8_t Pressed();
+        bool Held(uint8_t index, uint32_t deadline );
 };
 
 

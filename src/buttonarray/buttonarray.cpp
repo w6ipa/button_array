@@ -1,7 +1,7 @@
 #include "arduino.h"
 #include "buttonarray.h"
 
-Button::init_limits(uint8_t step){
+Button::InitLimits(uint8_t step){
 
     int32_t button_value;
     int32_t lower_button_value;
@@ -15,7 +15,7 @@ Button::init_limits(uint8_t step){
     step_ = step;
 }
 
-bool Button::pressed(int32_t analog_reading)
+bool Button::Pressed(int32_t analog_reading)
 {
     if ((analog_reading > low_limit_) && (analog_reading <=  high_limit_)) {
         return true;
@@ -33,12 +33,12 @@ int32_t Button::low_limit()
 }
 
 // Add all buttons in incremental order
-ButtonArray::add_all()
+ButtonArray::AddAll()
 {
     Serial.println("Add All");
     for(size_t i = 0; i < nb_buttons_; i++)
     {
-        ButtonArray::add(i, i);
+        ButtonArray::Add(i, i);
     }
     Serial.print("High Limit: ");
     Serial.println(high_limit_);
@@ -48,7 +48,7 @@ ButtonArray::add_all()
 
 // Adds a single button to the array
 // Takes a step (rank in the resistor ladder), and the index in the button array.
-ButtonArray::add(uint8_t step, uint8_t index){
+ButtonArray::Add(uint8_t step, uint8_t index){
     Button button;
     button.init_limits(step);
     button_array_[index] = button;
@@ -60,7 +60,7 @@ ButtonArray::add(uint8_t step, uint8_t index){
 int32_t ButtonArray::high_limit(){
     return high_limit_;
 }
-int8_t ButtonArray::read_buttons(){
+int8_t ButtonArray::ReadButtons(){
     uint32_t analog_read_temp =0;
     uint32_t analog_line_read_average=0;
 
@@ -74,7 +74,7 @@ int8_t ButtonArray::read_buttons(){
     Serial.println(analog_line_read_average);
     for (size_t x = 0; x < nb_buttons_; x++) {
         Button button = button_array_[x];
-        if (button.pressed(analog_line_read_average)) {
+        if (button.Pressedssed(analog_line_read_average)) {
             last_pressed_ms = millis();
             Serial.print("Returning ");
             Serial.println(x);
@@ -84,18 +84,28 @@ int8_t ButtonArray::read_buttons(){
     return -1;
 }
 
-int8_t ButtonArray::pressed() 
+int8_t ButtonArray::Pressed() 
 {
     if ((analogRead(pin_) <= high_limit_) && ((millis() - last_pressed_ms) > DEBOUNCE_MS )){
-        return read_buttons();
+        return ReadButtons();
     }
     return -1;
 }
-
-bool ButtonArray::held(uint8_t index, uint32_t until) 
+// Return true as long as the indicated button is held and the deadline not reached.
+bool ButtonArray::Held(uint8_t index, uint32_t deadline) 
 {
-    if ((analogRead(pin_) <= high_limit_) && (millis() < until) && (read_buttons() == index)) {
-        
+    if ((analogRead(pin_) <= high_limit_) && 
+    (millis() < deadline) && 
+    (ReadButtons() == index)) {
+        return true;
+    }
+    return false;
+}
+
+// Return true as long as the indicated button is held
+bool ButtonArray::Held(uint8_t index,) 
+{
+    if ((analogRead(pin_) <= high_limit_) && (ReadButtons() == index)) {
         return true;
     }
     return false;
